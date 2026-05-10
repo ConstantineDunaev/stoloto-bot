@@ -2,6 +2,7 @@ from asyncio import run
 from logging import getLogger, basicConfig
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
+from aiogram.types import BotCommand
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.bot import start_bot
 from src.config import Config
@@ -11,8 +12,12 @@ from datetime import datetime
 
 async def main():
     session = AiohttpSession(proxy=Config.telegram_proxy)
+    commands = [
+        BotCommand(command="start", description="Перезапустить бота"),
+    ]
     bot = Bot(token=Config.telegram_token,
               session=session)
+    await bot.set_my_commands(commands)
     scheduler = AsyncIOScheduler()
     scheduler.add_job(func=fill_draws,
                       trigger='interval',
