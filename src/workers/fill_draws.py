@@ -25,7 +25,7 @@ async def fill_draws():
                 draws = stoloto.get_arhive_draws(page=page,
                                                  count=Config.stoloto_count_draws_on_page,
                                                  game=Config.stoloto_game_name)
-                draws = [draw for draw in draws if draw.id > last_id and draw.combination]
+                draws = [draw for draw in draws if draw.id > last_id and draw.winning_combination]
                 if not draws:
                     logger.debug('Нет новых тиражей')
                     return
@@ -34,6 +34,8 @@ async def fill_draws():
                 logger.debug('Получено новых тиражей: %d', count_draws)
                 if count_draws == Config.stoloto_count_draws_on_page:
                     await sleep(Config.stoloto_delay)
+                else:
+                    return
                 break
             except HTTPError as e:
                 logger.exception('Ошибка получения данных тиража: page = %d, attempt = %d', page, attempt)
