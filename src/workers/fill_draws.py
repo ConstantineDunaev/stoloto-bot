@@ -18,7 +18,7 @@ async def fill_draws():
     logger.debug('ID последнего тиража: %d', last_id)
     for page in range(Config.stoloto_draws_first_page, Config.stoloto_draws_last_page + 1):
         logger.debug('Получение страницы №%d...', page)
-        for attemtp in range(1, 6):
+        for attempt in range(1, 6):
             try:
                 draws = stoloto.get_arhive_draws(page=page)
                 draws = [draw for draw in draws if draw.id > last_id]
@@ -28,7 +28,7 @@ async def fill_draws():
                 await sleep(Config.stoloto_delay)
                 break
             except HTTPError as e:
-                logger.exception('Ошибка получения данных тиража: page = %d, attempt = %d', page, attemtp)
+                logger.exception('Ошибка получения данных тиража: page = %d, attempt = %d', page, attempt)
                 await sleep(30)
 
 
