@@ -1,4 +1,4 @@
-from src.stoloto import get_arhive_draws
+from src.stoloto import Stoloto
 from src.repositories import DrawRepository
 from asyncio import run, sleep
 from requests.exceptions import HTTPError
@@ -13,12 +13,14 @@ async def fill_draws():
     db = DrawRepository(Config.database_path)
     await db.init()
     last_id = await db.get_last_draw_id()
+
+    stoloto = Stoloto(Config.gosloto_parthner)
     logger.debug('ID последнего тиража: %d', last_id)
     for page in range(Config.stoloto_draws_first_page, Config.stoloto_draws_last_page + 1):
         logger.debug('Получение страницы №%d...', page)
         for attemtp in range(1, 6):
             try:
-                draws = get_arhive_draws(page=page)
+                draws = stoloto.get_arhive_draws(page=page)
                 draws = [draw for draw in draws if draw.id > last_id]
                 if not draws:
                     return

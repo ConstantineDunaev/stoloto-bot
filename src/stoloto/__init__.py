@@ -1,1 +1,1 @@
-from .archive import get_arhive_draws
+from .stoloto import Stoloto
