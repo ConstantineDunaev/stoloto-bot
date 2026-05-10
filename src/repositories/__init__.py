@@ -30,7 +30,7 @@ class DrawRepository:
 
     async def write_draws(self, draws: list[Draw]):
         sql = ("INSERT INTO draw (id, number, date, super_prize, combination, left_field, right_field) "
-               "VALUES (?, ?, ?, ?, ?, ?, ?)")
+               "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO NOTHING")
         parameters = [(draw.id, draw.number, draw.date, draw.super_prize, draw.combination, draw.left_field, draw.right_field)
                       for draw in draws]
         async with connect(self.database_path) as connection:
