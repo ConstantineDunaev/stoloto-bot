@@ -37,7 +37,7 @@ async def fill_draws():
                 else:
                     return
                 break
-            except HTTPError as e:
+            except HTTPError:
                 logger.exception('Ошибка получения данных тиража: page = %d, attempt = %d', page, attempt)
                 await sleep(Config.stoloto_delay * attempt)
 
