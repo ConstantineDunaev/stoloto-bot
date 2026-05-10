@@ -4,7 +4,7 @@ from src.schemas import ArchiveResponse, Draw
 
 class Stoloto:
     def __init__(self, gosloto_parthner: str):
-        self.headers = {'gosloto_parthner': gosloto_parthner}
+        self.headers = {'gosloto-partner': gosloto_parthner}
 
     def get_arhive_draws(self, game: str = "4x20", count: int = 50, page: int = 1) -> list[Draw]:
         params = {
