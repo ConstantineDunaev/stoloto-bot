@@ -1,8 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.utils.formatting import Text, as_list, Bold, as_line, as_key_value
+from aiogram.utils.formatting import as_list, Bold, as_line, as_key_value
 from src.bot.filters import UserFilter
-from src.bot.keyboards.reply import START_KEYBOARD
 from src.repositories import DrawRepository
 from src.config import Config
 
