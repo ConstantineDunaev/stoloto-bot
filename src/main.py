@@ -1,4 +1,5 @@
 from asyncio import run
+from datetime import datetime
 from logging import getLogger, basicConfig
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -7,10 +8,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.bot import start_bot
 from src.config import Config
 from src.workers.fill_draws import fill_draws
-from datetime import datetime
+from src.repositories import CombinationRepository
 
 
 async def main():
+    combination_repo = CombinationRepository(Config.database_path)
+    await combination_repo.init()
+    await combination_repo.pull()
     session = AiohttpSession(proxy=Config.telegram_proxy)
     commands = [
         BotCommand(command="start", description="Перезапустить бота"),
