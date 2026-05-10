@@ -1,6 +1,6 @@
-from aiosqlite import connect
+from aiosqlite import connect, Row
 from pathlib import Path
-from src.schemas import Draw
+from src.schemas import Draw, DrawsInfo
 
 
 class DrawRepository:
@@ -38,10 +38,28 @@ class DrawRepository:
             await connection.commit()
 
     async def get_last_draw_id(self) -> int:
-        sql = "SELECT max(id) FROM draw"
+        sql = "SELECT max(id) as last_draw_id FROM draw"
         async with connect(self.database_path) as connection:
+            connection.row_factory = Row
             async with connection.cursor() as cursor:
                 rows = await cursor.execute(sql)
                 result = await rows.fetchone()
-                last_id = result[0]
-                return last_id if last_id else 0
+                last_draw_id = result['last_draw_id']
+                return last_draw_id if last_draw_id else 0
+
+    async def get_draws_info(self) -> DrawsInfo:
+        sql = """
+        SELECT 
+            count(1) as total_count,
+            min(number) as first_number,
+            min(date) as first_date,
+            max(number) as last_number,
+            max(date) as last_date
+        FROM draw d 
+        """
+        async with connect(self.database_path) as connection:
+            connection.row_factory = Row
+            async with connection.cursor() as cursor:
+                rows = await cursor.execute(sql)
+                result = await rows.fetchone()
+                return DrawsInfo(**result)
