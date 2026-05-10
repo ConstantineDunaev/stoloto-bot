@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.13"
 dependencies = [
+    "aiogram>=3.28.1",
     "aiohttp>=3.13.5",
     "aiosqlite>=0.22.1",
+    "apscheduler>=3.11.2",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.2",
     "requests>=2.33.1",
