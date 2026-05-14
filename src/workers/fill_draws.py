@@ -1,5 +1,5 @@
 from src.stoloto import Stoloto
-from src.repositories import DrawRepository
+from src.database import Database
 from asyncio import run, sleep
 from requests.exceptions import HTTPError
 from logging import getLogger, basicConfig
@@ -10,7 +10,7 @@ logger = getLogger('stoloto')
 
 
 async def fill_draws():
-    db = DrawRepository(Config.database_path)
+    db = Database(Config.database_path)
     await db.init()
 
     last_id = await db.get_last_draw_id()
@@ -25,11 +25,13 @@ async def fill_draws():
                 draws = stoloto.get_arhive_draws(page=page,
                                                  count=Config.stoloto_count_draws_on_page,
                                                  game=Config.stoloto_game_name)
-                draws = [draw for draw in draws if draw.id > last_id and draw.winning_combination]
+                draws = [draw for draw in draws if draw.draw_id > last_id and draw.winning_combination]
                 if not draws:
                     logger.debug('Нет новых тиражей')
                     return
+                combinations = [combination for draw in draws for combination in draw.combinations()]
                 await db.write_draws(draws)
+                await db.write_combinations(combinations)
                 count_draws = len(draws)
                 logger.debug('Получено новых тиражей: %d', count_draws)
                 if count_draws == Config.stoloto_count_draws_on_page:

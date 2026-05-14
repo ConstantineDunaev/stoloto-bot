@@ -8,13 +8,16 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.bot import start_bot
 from src.config import Config
 from src.workers.fill_draws import fill_draws
-from src.repositories import CombinationRepository
+# from src.repositories import CombinationRepository
+# from src.utils import generate_combination
 
 
 async def main():
-    combination_repo = CombinationRepository(Config.database_path)
-    await combination_repo.init()
-    await combination_repo.pull()
+    # combination_repo = CombinationRepository(Config.database_path)
+    # await combination_repo.init()
+    # for length in [3, 4]:
+    #     combination = generate_combination(length)
+    #     await combination_repo.pull(combination)
     session = AiohttpSession(proxy=Config.telegram_proxy)
     commands = [
         BotCommand(command="start", description="Перезапустить бота"),

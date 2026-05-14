@@ -8,23 +8,18 @@ class Draw(BaseModel):
         populate_by_name=True,
         extra="ignore",
     )
-    id: int
+    draw_id: int = Field(alias="id")
     number: int
     date: datetime
     super_prize: int = Field(alias="superPrize")
     winning_combination: list[str] = Field(alias="winningCombination")
 
-    @property
-    def combination(self) -> str:
-        return dumps(self.winning_combination)
+    def as_tuple(self) -> tuple[int, int, datetime, int, str]:
+        return self.draw_id, self.number, self.date, self.super_prize, dumps(self.winning_combination)
 
-    @property
-    def left_field(self) -> str:
-        return dumps(sorted(self.winning_combination[:4]))
-
-    @property
-    def right_field(self) -> str:
-        return dumps(sorted(self.winning_combination[4:]))
+    def combinations(self) -> list[tuple[int, int, int]]:
+        return [(self.draw_id, index, int(item))
+                for index, item in enumerate(self.winning_combination, start=1)]
 
 
 class ArchiveResponse(BaseModel):
