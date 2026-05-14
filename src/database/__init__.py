@@ -42,7 +42,8 @@ class Database:
                 await connection.execute(sql)
 
     async def write_draws(self, draws: list[Draw]):
-        sql = "INSERT INTO draw (draw_id, number, date, super_prize, combination) VALUES (?, ?, ?, ?, ?)"
+        sql = ("INSERT INTO draw (draw_id, number, date, super_prize, combination) "
+               "VALUES (?, ?, ?, ?, ?) ON CONFLICT (draw_id) DO NOTHING")
         parameters = [draw.as_tuple() for draw in draws]
         async with connect(self.database_path) as connection:
             await connection.executemany(sql, parameters)
