@@ -28,13 +28,13 @@ class Database:
             CREATE INDEX IF NOT EXISTS combination_draw_id_IDX ON combination (draw_id);
             CREATE INDEX IF NOT EXISTS combination_no_IDX ON combination (no);
             CREATE INDEX IF NOT EXISTS combination_value_IDX ON combination (value);
-            CREATE INDEX IF NOT EXISTS unique_combination (
+            CREATE TABLE IF NOT EXISTS unique_combination (
                 combination_id INTEGER NOT NULL,
-                lenght INTEGER NOT NULL,
+                len INTEGER NOT NULL,
                 value INTEGER NOT NULL
             );
             CREATE INDEX IF NOT EXISTS combination_id_IDX ON unique_combination (combination_id);
-            CREATE INDEX IF NOT EXISTS combination_lenght_IDX ON unique_combination (lenght);
+            CREATE INDEX IF NOT EXISTS combination_len_IDX ON unique_combination (len);
             CREATE INDEX IF NOT EXISTS combination_value_IDX ON unique_combination (value);
         """
         async with connect(self.database_path) as connection:
@@ -50,6 +50,12 @@ class Database:
 
     async def write_combinations(self, combinations: list[tuple]):
         sql = "INSERT INTO combination (draw_id, no, value) VALUES (?, ?, ?)"
+        async with connect(self.database_path) as connection:
+            await connection.executemany(sql, combinations)
+            await connection.commit()
+
+    async def write_unique_combinations(self, combinations: list[tuple]):
+        sql = "INSERT INTO unique_combination (combination_id, len, value) VALUES (?, ?, ?)"
         async with connect(self.database_path) as connection:
             await connection.executemany(sql, combinations)
             await connection.commit()
