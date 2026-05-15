@@ -7,7 +7,7 @@ from asyncio import run
 async def main():
     db = Database(Config.database_path)
     await db.init()
-    for length in range(2, 5):
+    for length in range(1, 5):
         combination = generate_combination(length)
         await db.write_unique_combinations(combination)
 
