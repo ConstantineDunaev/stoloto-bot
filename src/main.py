@@ -26,12 +26,12 @@ async def main():
               session=session)
     await bot.set_my_commands(commands)
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(func=fill_draws,
-                      trigger='interval',
-                      seconds=Config.stoloto_draws_update_interval,
-                      max_instances=1,
-                      next_run_time=datetime.now(),
-                      coalesce=True)
+    # scheduler.add_job(func=fill_draws,
+    #                   trigger='interval',
+    #                   seconds=Config.stoloto_draws_update_interval,
+    #                   max_instances=1,
+    #                   next_run_time=datetime.now(),
+    #                   coalesce=True)
     await start_bot(scheduler, bot)
 
 

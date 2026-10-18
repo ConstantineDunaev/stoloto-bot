@@ -29,9 +29,7 @@ async def fill_draws():
                 if not draws:
                     logger.debug('Нет новых тиражей')
                     return
-                combinations = [combination for draw in draws for combination in draw.combinations()]
                 await db.write_draws(draws)
-                await db.write_combinations(combinations)
                 count_draws = len(draws)
                 logger.debug('Получено новых тиражей: %d', count_draws)
                 if count_draws == Config.stoloto_count_draws_on_page:

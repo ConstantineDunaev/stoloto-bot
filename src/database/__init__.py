@@ -15,51 +15,43 @@ class Database:
                 date date NOT NULL,
                 super_prize INTEGER NOT NULL,
                 combination TEXT NOT NULL,
+                left_mask INTEGER NOT NULL,
+                right_mask INTEGER NOT NULL,
                 CONSTRAINT draw_pk PRIMARY KEY (draw_id)
             );
             CREATE INDEX IF NOT EXISTS draw_number_IDX ON draw (number);
             CREATE INDEX IF NOT EXISTS draw_id_IDX ON draw (draw_id);
             CREATE INDEX IF NOT EXISTS draw_date_IDX ON draw (date);
-            CREATE TABLE IF NOT EXISTS combination (
-                draw_id INTEGER NOT NULL,
-                no INTEGER NOT NULL,
-                value INTEGER NOT NULL
-            );
-            CREATE INDEX IF NOT EXISTS combination_draw_id_IDX ON combination (draw_id);
-            CREATE INDEX IF NOT EXISTS combination_no_IDX ON combination (no);
-            CREATE INDEX IF NOT EXISTS combination_value_IDX ON combination (value);
-            CREATE TABLE IF NOT EXISTS unique_combination (
-                combination_id INTEGER NOT NULL,
-                len INTEGER NOT NULL,
-                value INTEGER NOT NULL
-            );
-            CREATE INDEX IF NOT EXISTS combination_id_IDX ON unique_combination (combination_id);
-            CREATE INDEX IF NOT EXISTS combination_len_IDX ON unique_combination (len);
-            CREATE INDEX IF NOT EXISTS combination_value_IDX ON unique_combination (value);
         """
         async with connect(self.database_path) as connection:
             for sql in sqls.split(';'):
                 await connection.execute(sql)
 
     async def write_draws(self, draws: list[Draw]):
-        sql = ("INSERT INTO draw (draw_id, number, date, super_prize, combination) "
-               "VALUES (?, ?, ?, ?, ?) ON CONFLICT (draw_id) DO NOTHING")
+        sql = ("INSERT INTO draw (draw_id, number, date, super_prize, combination, left_mask, right_mask) "
+               "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (draw_id) DO NOTHING")
         parameters = [draw.as_tuple() for draw in draws]
         async with connect(self.database_path) as connection:
             await connection.executemany(sql, parameters)
             await connection.commit()
 
-    async def write_combinations(self, combinations: list[tuple]):
-        sql = "INSERT INTO combination (draw_id, no, value) VALUES (?, ?, ?)"
+    async def count_draws_with_left(self, mask: int) -> int:
+        sql = "SELECT count(*) as cnt FROM draw WHERE (left_mask & ?) = ?"
         async with connect(self.database_path) as connection:
-            await connection.executemany(sql, combinations)
-            await connection.commit()
+            connection.row_factory = Row
+            async with connection.cursor() as cursor:
+                rows = await cursor.execute(sql, (mask, mask))
+                result = await rows.fetchone()
+                return result['cnt']
 
-    async def write_unique_combinations(self, combinations: list[tuple]):
-        sql = "INSERT INTO unique_combination (combination_id, len, value) VALUES (?, ?, ?)"
+    async def count_draws_with_right(self, mask: int) -> int:
+        sql = "SELECT count(*) as cnt FROM draw WHERE (right_mask & ?) = ?"
         async with connect(self.database_path) as connection:
-            await connection.executemany(sql, combinations)
-            await connection.commit()
+            connection.row_factory = Row
+            async with connection.cursor() as cursor:
+                rows = await cursor.execute(sql, (mask, mask))
+                result = await rows.fetchone()
+                return result['cnt']
 
     async def get_last_draw_id(self) -> int:
         sql = "SELECT max(draw_id) as last_draw_id FROM draw"

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from json import dumps
+from src.utils import mask_from_values
 
 
 class Draw(BaseModel):
@@ -14,12 +15,17 @@ class Draw(BaseModel):
     super_prize: int = Field(alias="superPrize")
     winning_combination: list[str] = Field(alias="winningCombination")
 
-    def as_tuple(self) -> tuple[int, int, datetime, int, str]:
-        return self.draw_id, self.number, self.date, self.super_prize, dumps(self.winning_combination)
+    @property
+    def left_mask(self) -> int:
+        return mask_from_values([int(value) for value in self.winning_combination[:4]])
 
-    def combinations(self) -> list[tuple[int, int, int]]:
-        return [(self.draw_id, index, int(item))
-                for index, item in enumerate(self.winning_combination, start=1)]
+    @property
+    def right_mask(self) -> int:
+        return mask_from_values([int(value) for value in self.winning_combination[4:]])
+
+    def as_tuple(self) -> tuple[int, int, datetime, int, str, int, int]:
+        return (self.draw_id, self.number, self.date, self.super_prize,
+                dumps(self.winning_combination), self.left_mask, self.right_mask)
 
 
 class ArchiveResponse(BaseModel):
